@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">VpnClient</string>
+    <string name="vpn">VPN</string>
+    <string name="switch_off">Выключено</string>
+    <string name="netherlands">Нидерланды</string>
+    <string name="connect">Подключить</string>
 </resources>
