@@ -3,7 +3,9 @@ package com.vpn.client
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.vpn.client.ui.vpn_connect.VpnConnectFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

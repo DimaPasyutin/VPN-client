@@ -1,5 +1,6 @@
 package com.vpn.client.ui.vpn_connect
 
+import android.content.Intent
 import com.vpn.client.models.Server
 
 data class VpnConnectScreenState(
@@ -11,4 +12,8 @@ data class VpnConnectScreenState(
 sealed class VpnConnectEvent {
     object Default : VpnConnectEvent()
     object Connect : VpnConnectEvent()
+    object StartVpn : VpnConnectEvent()
+    object StopVpn : VpnConnectEvent()
+    object PermissionDenied : VpnConnectEvent()
+    class RequestPermission(val intent: Intent) : VpnConnectEvent()
 }
