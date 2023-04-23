@@ -2,6 +2,8 @@
     <string name="app_name">VpnClient</string>
     <string name="vpn">VPN</string>
     <string name="switch_off">Выключено</string>
+    <string name="switch_on">Включено</string>
     <string name="netherlands">Нидерланды</string>
     <string name="connect">Подключить</string>
+    <string name="connect_to_internet">Подключитe интернет</string>
 </resources>
