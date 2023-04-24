@@ -1,11 +1,12 @@
 package com.vpn.client.ui.vpn_connect
 
 import android.content.Intent
+import com.vpn.client.models.ConnectionSpeed
 import com.vpn.client.models.Server
 
 data class VpnConnectScreenState(
     val server: Server = Server(),
-    val isConnected: Boolean = false,
+    val connectionSpeed: ConnectionSpeed = ConnectionSpeed(),
     val event: VpnConnectEvent = VpnConnectEvent.Default
 )
 

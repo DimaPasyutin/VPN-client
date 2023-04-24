@@ -57,7 +57,7 @@ class VpnConnectFragment : Fragment(R.layout.fragment_vpn_connect) {
 
     private fun renderState(state: VpnConnectScreenState) {
         with(binding) {
-            val textConnected = if (state.isConnected) R.string.switch_on else R.string.switch_off
+            val textConnected = if (state.connectionSpeed.byteIn.isNotEmpty()) R.string.switch_on else R.string.switch_off
             connectStatus.text = getText(textConnected)
         }
     }

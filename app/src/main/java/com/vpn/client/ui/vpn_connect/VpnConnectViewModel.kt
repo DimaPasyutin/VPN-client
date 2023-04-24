@@ -1,11 +1,13 @@
 package com.vpn.client.ui.vpn_connect
 
+import androidx.lifecycle.viewModelScope
 import com.vpn.client.R
 import com.vpn.client.data.InternetConnection
 import com.vpn.client.data.ToastShower
 import com.vpn.client.data.VPN
 import com.vpn.client.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,9 +17,21 @@ class VpnConnectViewModel @Inject constructor(
     private val connection: InternetConnection,
 ) : BaseViewModel<VpnConnectScreenState>(VpnConnectScreenState()) {
 
+    init {
+        viewModelScope.launch {
+            vpn.vpnStatus.collect { speed ->
+                updateState {
+                    it.copy(
+                        connectionSpeed = speed
+                    )
+                }
+            }
+        }
+    }
+
     fun obtainEvent(event: VpnConnectEvent) {
         when (event) {
-            is VpnConnectEvent.Default -> updateState()
+            is VpnConnectEvent.Default -> {}
             is VpnConnectEvent.Connect -> connectToVpn()
             is VpnConnectEvent.PermissionDenied -> setEvent(event)
             is VpnConnectEvent.StartVpn -> startVpn()
@@ -29,21 +43,12 @@ class VpnConnectViewModel @Inject constructor(
 
     private fun startVpn() {
         vpn.startVpn(screenState.value.server)
-        updateState()
-    }
-
-    private fun updateState() {
-        updateState {
-            it.copy(
-                isConnected = vpn.vpnStarted()
-            )
-        }
     }
 
     private fun connectToVpn() {
         if (connection.hasConnection()) {
             val intent = vpn.prepareVpn()
-            if (!vpn.vpnStarted() && intent != null) {
+            if (vpn.vpnStatus.value.byteIn.isEmpty() && intent != null) {
                 setEvent(VpnConnectEvent.RequestPermission(intent))
             } else {
                 vpn.startVpn(screenState.value.server)
