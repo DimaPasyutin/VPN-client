@@ -5,5 +5,6 @@
     <string name="switch_on">Включено</string>
     <string name="netherlands">Нидерланды</string>
     <string name="connect">Подключить</string>
+    <string name="disconnect">Выключить</string>
     <string name="connect_to_internet">Подключитe интернет</string>
 </resources>

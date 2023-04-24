@@ -48,7 +48,7 @@ class VpnConnectViewModel @Inject constructor(
     private fun connectToVpn() {
         if (connection.hasConnection()) {
             val intent = vpn.prepareVpn()
-            if (vpn.vpnStatus.value.byteIn.isEmpty() && intent != null) {
+            if (vpn.vpnStatus.value.byteIn.isEmpty() && vpn.vpnStatus.value.byteOut.isEmpty() && intent != null) {
                 setEvent(VpnConnectEvent.RequestPermission(intent))
             } else {
                 vpn.startVpn(screenState.value.server)

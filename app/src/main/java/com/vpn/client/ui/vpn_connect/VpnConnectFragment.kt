@@ -57,14 +57,24 @@ class VpnConnectFragment : Fragment(R.layout.fragment_vpn_connect) {
 
     private fun renderState(state: VpnConnectScreenState) {
         with(binding) {
-            val textConnected = if (state.connectionSpeed.byteIn.isNotEmpty()) R.string.switch_on else R.string.switch_off
+            val textConnected =
+                if (state.connectionSpeed.byteIn.isNotEmpty()) R.string.switch_on else R.string.switch_off
             connectStatus.text = getText(textConnected)
+            if (state.connectionSpeed.byteIn.isNotEmpty() && state.connectionSpeed.byteOut.isNotEmpty()) {
+                btnConnect.text = getText(R.string.disconnect)
+            } else {
+                btnConnect.text = getText(R.string.connect)
+            }
         }
     }
 
     private fun initListeners() {
         binding.btnConnect.setOnClickListener {
-            viewModel.obtainEvent(VpnConnectEvent.Connect)
+            if (viewModel.screenState.value.connectionSpeed.byteIn.isNotEmpty() && viewModel.screenState.value.connectionSpeed.byteOut.isNotEmpty()) {
+                viewModel.obtainEvent(VpnConnectEvent.StopVpn)
+            } else {
+                viewModel.obtainEvent(VpnConnectEvent.Connect)
+            }
         }
     }
 
@@ -72,5 +82,4 @@ class VpnConnectFragment : Fragment(R.layout.fragment_vpn_connect) {
         if (event !is VpnConnectEvent.RequestPermission) return
         startActivityForVpnPermission.launch(event.intent)
     }
-
 }
