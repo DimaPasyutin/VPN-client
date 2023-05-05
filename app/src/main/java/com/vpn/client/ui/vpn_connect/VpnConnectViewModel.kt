@@ -3,10 +3,11 @@ package com.vpn.client.ui.vpn_connect
 import androidx.lifecycle.viewModelScope
 import com.vpn.client.R
 import com.vpn.client.data.InternetConnection
-import com.vpn.client.data.ToastShower
+import com.vpn.client.utils.ToastShower
 import com.vpn.client.data.VPN
 import com.vpn.client.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,43 +19,54 @@ class VpnConnectViewModel @Inject constructor(
 ) : BaseViewModel<VpnConnectScreenState>(VpnConnectScreenState()) {
 
     init {
-        viewModelScope.launch {
+        initVpnSpeedObserver()
+    }
+
+    fun obtainEvent(event: VpnConnectEvent) {
+        when (event) {
+            is VpnConnectEvent.Connect -> requestConnectionVpn()
+            is VpnConnectEvent.PermissionDenied -> setEvent(event)
+            is VpnConnectEvent.StartVpn -> startVpn()
+            is VpnConnectEvent.StopVpn -> vpn.stopVpn()
+            is VpnConnectEvent.RequestPermission -> {}
+            is VpnConnectEvent.Default -> {}
+        }
+        setEvent(event)
+    }
+
+    private fun initVpnSpeedObserver() {
+        viewModelScope.launch(Dispatchers.Default) {
             vpn.vpnStatus.collect { speed ->
                 updateState {
                     it.copy(
-                        connectionSpeed = speed
+                        connectionSpeed = speed,
+                        isVpnStarted = speed.byteIn.isNotEmpty() && speed.byteOut.isNotEmpty()
                     )
                 }
             }
         }
     }
 
-    fun obtainEvent(event: VpnConnectEvent) {
-        when (event) {
-            is VpnConnectEvent.Default -> {}
-            is VpnConnectEvent.Connect -> connectToVpn()
-            is VpnConnectEvent.PermissionDenied -> setEvent(event)
-            is VpnConnectEvent.StartVpn -> startVpn()
-            is VpnConnectEvent.StopVpn -> vpn.stopVpn()
-            is VpnConnectEvent.RequestPermission -> {}
-        }
-        setEvent(event)
-    }
-
     private fun startVpn() {
         vpn.startVpn(screenState.value.server)
     }
 
-    private fun connectToVpn() {
+    private fun requestConnectionVpn() {
         if (connection.hasConnection()) {
-            val intent = vpn.prepareVpn()
-            if (vpn.vpnStatus.value.byteIn.isEmpty() && vpn.vpnStatus.value.byteOut.isEmpty() && intent != null) {
-                setEvent(VpnConnectEvent.RequestPermission(intent))
-            } else {
-                vpn.startVpn(screenState.value.server)
-            }
+            connectToVpnOrRequestPermission()
         } else {
             toast.show(R.string.connect_to_internet)
+            setEvent(VpnConnectEvent.Default)
+        }
+    }
+
+    private fun connectToVpnOrRequestPermission() {
+        val intent = vpn.prepareVpn()
+        if (vpn.vpnStatus.value.byteIn.isEmpty() && vpn.vpnStatus.value.byteOut.isEmpty() && intent != null) {
+            setEvent(VpnConnectEvent.RequestPermission(intent))
+        } else {
+            vpn.startVpn(screenState.value.server)
+            setEvent(VpnConnectEvent.Default)
         }
     }
 

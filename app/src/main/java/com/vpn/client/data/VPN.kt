@@ -11,7 +11,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.vpn.client.models.ConnectionSpeed
 import com.vpn.client.models.Server
 import de.blinkt.openvpn.OpenVpnApi
-import de.blinkt.openvpn.core.OpenVPNService
 import de.blinkt.openvpn.core.OpenVPNThread
 import de.blinkt.openvpn.core.VpnStatus
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +23,6 @@ import javax.inject.Inject
 
 class VPN @Inject constructor(
     private val context: Application,
-    private var vpnService: OpenVPNService,
     private var openVPNThread: OpenVPNThread,
 ) {
 

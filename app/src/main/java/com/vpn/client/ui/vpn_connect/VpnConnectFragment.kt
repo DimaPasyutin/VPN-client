@@ -2,7 +2,6 @@ package com.vpn.client.ui.vpn_connect
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -10,16 +9,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.vpn.client.R
-import com.vpn.client.data.VPN
 import com.vpn.client.databinding.FragmentVpnConnectBinding
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class VpnConnectFragment : Fragment(R.layout.fragment_vpn_connect) {
-
-    @Inject
-    lateinit var vpn: VPN
 
     private val binding: FragmentVpnConnectBinding by viewBinding()
 
@@ -40,15 +34,9 @@ class VpnConnectFragment : Fragment(R.layout.fragment_vpn_connect) {
         initListeners()
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.obtainEvent(VpnConnectEvent.Default)
-    }
-
     private fun initObserverStateScreen() {
         lifecycleScope.launchWhenResumed {
             viewModel.screenState.collect { state ->
-                Log.e("!!!", state.toString())
                 renderState(state)
                 requestPermission(state.event)
             }
@@ -57,20 +45,16 @@ class VpnConnectFragment : Fragment(R.layout.fragment_vpn_connect) {
 
     private fun renderState(state: VpnConnectScreenState) {
         with(binding) {
-            val textConnected =
-                if (state.connectionSpeed.byteIn.isNotEmpty()) R.string.switch_on else R.string.switch_off
+            val textConnected = if (state.isVpnStarted) R.string.switch_on else R.string.switch_off
+            val vpnStatus = if (state.isVpnStarted) R.string.disconnect else R.string.connect
             connectStatus.text = getText(textConnected)
-            if (state.connectionSpeed.byteIn.isNotEmpty() && state.connectionSpeed.byteOut.isNotEmpty()) {
-                btnConnect.text = getText(R.string.disconnect)
-            } else {
-                btnConnect.text = getText(R.string.connect)
-            }
+            btnConnect.text = getText(vpnStatus)
         }
     }
 
     private fun initListeners() {
         binding.btnConnect.setOnClickListener {
-            if (viewModel.screenState.value.connectionSpeed.byteIn.isNotEmpty() && viewModel.screenState.value.connectionSpeed.byteOut.isNotEmpty()) {
+            if (viewModel.screenState.value.isVpnStarted) {
                 viewModel.obtainEvent(VpnConnectEvent.StopVpn)
             } else {
                 viewModel.obtainEvent(VpnConnectEvent.Connect)

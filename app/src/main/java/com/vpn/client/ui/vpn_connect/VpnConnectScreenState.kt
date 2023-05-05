@@ -6,6 +6,7 @@ import com.vpn.client.models.Server
 
 data class VpnConnectScreenState(
     val server: Server = Server(),
+    val isVpnStarted: Boolean = false,
     val connectionSpeed: ConnectionSpeed = ConnectionSpeed(),
     val event: VpnConnectEvent = VpnConnectEvent.Default
 )

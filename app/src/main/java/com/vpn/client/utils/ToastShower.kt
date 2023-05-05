@@ -1,4 +1,4 @@
-package com.vpn.client.data
+package com.vpn.client.utils
 
 import android.app.Application
 import android.widget.Toast
