@@ -1,8 +1,8 @@
 package com.vpn.client.ui.vpn_connect
 
 import android.content.Intent
-import com.vpn.client.models.ConnectionSpeed
-import com.vpn.client.models.Server
+import com.vpn.client.domain.models.ConnectionSpeed
+import com.vpn.client.domain.models.Server
 
 data class VpnConnectScreenState(
     val server: Server = Server(),

@@ -1,4 +1,4 @@
-package com.vpn.client.models
+package com.vpn.client.domain.models
 
 data class Server(
     val ovpnUserName: String = "dima",

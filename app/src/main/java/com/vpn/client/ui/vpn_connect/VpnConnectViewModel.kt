@@ -2,9 +2,8 @@ package com.vpn.client.ui.vpn_connect
 
 import androidx.lifecycle.viewModelScope
 import com.vpn.client.R
-import com.vpn.client.data.InternetConnection
 import com.vpn.client.utils.ToastShower
-import com.vpn.client.data.VPN
+import com.vpn.client.domain.use_cases.VpnConnectUseCase
 import com.vpn.client.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -13,9 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VpnConnectViewModel @Inject constructor(
-    private val vpn: VPN,
     private val toast: ToastShower,
-    private val connection: InternetConnection,
+    private val useCase: VpnConnectUseCase,
 ) : BaseViewModel<VpnConnectScreenState>(VpnConnectScreenState()) {
 
     init {
@@ -27,7 +25,7 @@ class VpnConnectViewModel @Inject constructor(
             is VpnConnectEvent.Connect -> requestConnectionVpn()
             is VpnConnectEvent.PermissionDenied -> setEvent(event)
             is VpnConnectEvent.StartVpn -> startVpn()
-            is VpnConnectEvent.StopVpn -> vpn.stopVpn()
+            is VpnConnectEvent.StopVpn -> useCase.stopVpn()
             is VpnConnectEvent.RequestPermission -> {}
             is VpnConnectEvent.Default -> {}
         }
@@ -36,7 +34,7 @@ class VpnConnectViewModel @Inject constructor(
 
     private fun initVpnSpeedObserver() {
         viewModelScope.launch(Dispatchers.Default) {
-            vpn.vpnStatus.collect { speed ->
+            useCase.getVpnStatus().collect { speed ->
                 updateState {
                     it.copy(
                         connectionSpeed = speed,
@@ -48,11 +46,11 @@ class VpnConnectViewModel @Inject constructor(
     }
 
     private fun startVpn() {
-        vpn.startVpn(screenState.value.server)
+        useCase.startVpn(screenState.value.server)
     }
 
     private fun requestConnectionVpn() {
-        if (connection.hasConnection()) {
+        if (useCase.hasConnection()) {
             connectToVpnOrRequestPermission()
         } else {
             toast.show(R.string.connect_to_internet)
@@ -61,11 +59,11 @@ class VpnConnectViewModel @Inject constructor(
     }
 
     private fun connectToVpnOrRequestPermission() {
-        val intent = vpn.prepareVpn()
-        if (vpn.vpnStatus.value.byteIn.isEmpty() && vpn.vpnStatus.value.byteOut.isEmpty() && intent != null) {
+        val intent = useCase.prepareVpn()
+        if (!screenState.value.isVpnStarted && intent != null) {
             setEvent(VpnConnectEvent.RequestPermission(intent))
         } else {
-            vpn.startVpn(screenState.value.server)
+            useCase.startVpn(screenState.value.server)
             setEvent(VpnConnectEvent.Default)
         }
     }

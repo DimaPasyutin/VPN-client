@@ -8,8 +8,9 @@ import android.content.IntentFilter
 import android.net.VpnService
 import android.os.RemoteException
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.vpn.client.models.ConnectionSpeed
-import com.vpn.client.models.Server
+import com.vpn.client.domain.gateways.VpnController
+import com.vpn.client.domain.models.ConnectionSpeed
+import com.vpn.client.domain.models.Server
 import de.blinkt.openvpn.OpenVpnApi
 import de.blinkt.openvpn.core.OpenVPNThread
 import de.blinkt.openvpn.core.VpnStatus
@@ -24,10 +25,10 @@ import javax.inject.Inject
 class VPN @Inject constructor(
     private val context: Application,
     private var openVPNThread: OpenVPNThread,
-) {
+) : VpnController {
 
     private val _vpnStatus = MutableStateFlow(ConnectionSpeed())
-    val vpnStatus = _vpnStatus.asStateFlow()
+    override val vpnStatus = _vpnStatus.asStateFlow()
 
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -50,11 +51,11 @@ class VPN @Inject constructor(
         LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, IntentFilter("connectionState"))
     }
 
-    fun prepareVpn(): Intent? = VpnService.prepare(context)
+    override fun prepareVpn(): Intent? = VpnService.prepare(context)
 
-    fun stopVpn() = openVPNThread.stopProcess()
+    override fun stopVpn() = openVPNThread.stopProcess()
 
-    fun startVpn(server: Server) {
+    override fun startVpn(server: Server) {
         try {
             val conf: InputStream = context.assets.open(server.ovpn)
             val isr = InputStreamReader(conf)

@@ -4,12 +4,13 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.vpn.client.domain.gateways.Connection
 import javax.inject.Inject
 
 class InternetConnection @Inject constructor(
     private val context: Application,
-) {
-    fun hasConnection(): Boolean {
+) : Connection {
+    override fun hasConnection(): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val capabilities =
